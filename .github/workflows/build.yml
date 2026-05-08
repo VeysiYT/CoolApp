@@ -1,18 +1,30 @@
-name: Build My App
-on: [push]
+name: Build My Clean APK
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build APK
-        # We are switching to a newer, working tool
-        uses: ducks-party/html-to-apk@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          # Your app details
-          app-name: "CoolApp"
-          package-name: "com.uzxx.coolapp"
-          icon-path: "" # Leave empty for default icon
+          node-version: '20'
+
+      - name: Build APK without Splash
+        run: |
+          # Install the tool directly
+          npm install -g @bubblewrap/cli
+          
+          # This command creates the APK from your local index.html
+          # We use 'npx' to ensure we use the latest version
+          npx @bubblewrap/cli init --manifest=https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json --extracapabilities=--no-splash
+          npx @bubblewrap/cli build --skipSigning
+          
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoolApp-APK
+          path: ./*.apk
