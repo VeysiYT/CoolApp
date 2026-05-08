@@ -1,14 +1,25 @@
-name: Build APK
-on: [push]
+name: Build CoolApp APK
+on: [push, workflow_dispatch] # Added manual trigger
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        uses: Gearar/html-to-apk-action@v1.0
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          app_name: "CoolApp"
-          package_name: "com.veysi.coolapp"
-          input_path: "index.html"
-          
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Build Tool
+        run: npm install -g @bubblewrap/cli
+
+      - name: Build APK
+        run: |
+          # This command builds the app directly from your repo
+          # It bypasses the "strict" rules of older actions
+          npx @bubblewrap/cli init --manifest=https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json --extracapabilities=--no-splash
+          npx @bubblewrap/cli build
