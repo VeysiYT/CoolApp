@@ -1,16 +1,18 @@
-name: Build My APK
+name: Build My App
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build APK
-        uses: Gearar/html-to-apk-action@v1.0
+        # We are switching to a newer, working tool
+        uses: ducks-party/html-to-apk@v1
         with:
-          app_name: "CoolApp"
-          package_name: "com.uzxx.myapp"
-          # This line tells the robot exactly where your code is
-          input_path: "index.html" 
+          # Your app details
+          app-name: "CoolApp"
+          package-name: "com.uzxx.coolapp"
+          icon-path: "" # Leave empty for default icon
