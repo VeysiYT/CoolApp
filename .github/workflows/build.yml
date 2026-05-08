@@ -13,18 +13,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build APK without Splash
+      - name: Build APK (Non-Interactive)
         run: |
-          # Install the tool directly
           npm install -g @bubblewrap/cli
           
-          # This command creates the APK from your local index.html
-          # We use 'npx' to ensure we use the latest version
-          npx @bubblewrap/cli init --manifest=https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json --extracapabilities=--no-splash
-          npx @bubblewrap/cli build --skipSigning
+          # This 'yes' command automatically presses 'Enter' for every question Bubblewrap asks
+          yes "" | npx @bubblewrap/cli init --manifest=https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json --extracapabilities=--no-splash
           
-      - name: Upload APK Artifact
+          # Tell Bubblewrap where the JDK and Android SDK are located on the GitHub server
+          npx @bubblewrap/cli doctor --jdkPath=$JAVA_HOME --androidSdkPath=$ANDROID_SDK_ROOT
+          
+          npx @bubblewrap/cli build --skipSigning
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CoolApp-APK
+          name: MyFinishedApp
           path: ./*.apk
